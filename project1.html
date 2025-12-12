@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adaptive Resource Allocation System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --ai-color: #9b59b6;
+            --sjf-color: #e67e22;
+            --light-bg: #f8f9fa;
+            --dark-bg: #1a2530;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            --card-shadow-hover: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background: var(--gradient-secondary);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-text h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 500px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Main Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            height: fit-content;
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 0.95rem;
+        }
+
+        .control-group input,
+        .control-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .control-group input:focus,
+        .control-group select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .control-group input[type="range"] {
+            padding: 0;
+            height: 6px;
+        }
+
+        .range-value {
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-sjf {
+            background: var(--sjf-color);
+            color: white;
+        }
+
+        /* Main Content Area */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .card-title {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Process Grid */
+        .process-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .process-card {
+            background: var(--light-bg);
+            border-radius: 12px;
+            padding: 15px;
+            border-left: 4px solid var(--secondary-color);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .process-card.running {
+            border-left-color: var(--success-color);
+        }
+
+        .process-card.waiting {
+            border-left-color: var(--warning-color);
+        }
+
+        .process-card.completed {
+            border-left-color: #95a5a6;
+            opacity: 0.8;
+        }
+
+        .algorithm-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .badge-adaptive { background: var(--ai-color); }
+        .badge-sjf { background: var(--sjf-color); }
+        .badge-priority { background: var(--secondary-color); }
+        .badge-fcfs { background: var(--warning-color); }
+        .badge-rr { background: var(--success-color); }
+
+        /* Algorithm Info Panel */
+        .algorithm-info-panel {
+            background: linear-gradient(135deg, #f8f9ff 0%, #eef2ff 100%);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            border: 1px solid var(--secondary-color);
+        }
+
+        .algorithm-history {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .algorithm-entry {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-left: 3px solid var(--secondary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+        }
+
+        /* Resource Bars */
+        .resource-bars {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .resource-bar-container {
+            background: var(--light-bg);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .resource-bar {
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .resource-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.5s;
+        }
+
+        .cpu-fill { background: var(--secondary-color); }
+        .memory-fill { background: var(--success-color); }
+        .io-fill { background: var(--ai-color); }
+
+        /* Log Panel */
+        .log-panel {
+            max-height: 200px;
+            overflow-y: auto;
+            background: var(--light-bg);
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .log-entry {
+            padding: 8px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .data-table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        /* Performance Metrics */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 5px 0;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 25px;
+            margin-top: 30px;
+            color: white;
+            background: var(--gradient-secondary);
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+        }
+
+        /* Algorithm Legend */
+        .algorithm-legend {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .header-stats {
+                min-width: auto;
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .resource-bars {
+                grid-template-columns: 1fr;
+            }
+            
+            .process-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-bg"></div>
+            <div class="header-content">
+                <div class="header-text">
+                    <h1><i class="fas fa-microchip"></i> Adaptive Resource Allocation</h1>
+                    <p class="subtitle"><i class="fas fa-cogs"></i> Multiprogramming System with Multiple Algorithms</p>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="total-processes">0</div>
+                        <div class="stat-label">Processes</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="cpu-util">0%</div>
+                        <div class="stat-label">CPU Usage</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="throughput">0</div>
+                        <div class="stat-label">Throughput</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="simulation-time">0s</div>
+                        <div class="stat-label">Time</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- System Configuration -->
+                <div class="sidebar-section">
+                    <h3 class="section-title"><i class="fas fa-sliders-h"></i> System Config</h3>
+                    
+                    <div class="control-group">
+                        <label>Processes: <span class="range-value" id="process-value">6</span></label>
+                        <input type="range" id="process-count" min="1" max="15" value="6" step="1">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>CPU Cores: <span class="range-value" id="cpu-value">4</span></label>
+                        <input type="range" id="cpu-count" min="1" max="8" value="4" step="1">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Memory (MB): <span class="range-value" id="memory-value">2048</span></label>
+                        <input type="range" id="memory-size" min="512" max="4096" value="2048" step="256">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>I/O Devices: <span class="range-value" id="io-value">4</span></label>
+                        <input type="range" id="io-devices" min="1" max="8" value="4" step="1">
+                    </div>
+                </div>
+                
+                <!-- Algorithm Configuration -->
+                <div class="sidebar-section">
+                    <h3 class="section-title"><i class="fas fa-algorithm"></i> Algorithm Selection</h3>
+                    
+                    <div class="control-group">
+                        <label>Allocation Algorithm</label>
+                        <select id="algorithm">
+                            <option value="adaptive">Adaptive (Smart)</option>
+                            <option value="sjf">SJF (Shortest Job First)</option>
+                            <option value="priority">Priority Based</option>
+                            <option value="fcfs">First Come First Serve</option>
+                            <option value="rr">Round Robin</option>
+                        </select>
+                    </div>
+                    
+                    <div class="algorithm-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--ai-color);"></div>
+                            <span>Adaptive</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--sjf-color);"></div>
+                            <span>SJF</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--secondary-color);"></div>
+                            <span>Priority</span>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Simulation Speed</label>
+                        <select id="speed">
+                            <option value="2000">Slow (0.5x)</option>
+                            <option value="1000" selected>Normal (1x)</option>
+                            <option value="500">Fast (2x)</option>
+                            <option value="250">Very Fast (4x)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Controls -->
+                <div class="sidebar-section">
+                    <h3 class="section-title"><i class="fas fa-play-circle"></i> Controls</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                        <button class="btn btn-success" id="start-btn">
+                            <i class="fas fa-play"></i> Start
+                        </button>
+                        <button class="btn btn-warning" id="pause-btn">
+                            <i class="fas fa-pause"></i> Pause
+                        </button>
+                        <button class="btn btn-danger" id="reset-btn">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                        <button class="btn btn-primary" id="add-process-btn">
+                            <i class="fas fa-plus"></i> Add Process
+                        </button>
+                    </div>
+                    
+                    <div class="algorithm-info-panel">
+                        <div style="font-weight: 600; color: var(--primary-color); margin-bottom: 5px;">
+                            <i class="fas fa-info-circle"></i> Current Algorithm Info
+                        </div>
+                        <div id="current-algorithm-info" style="font-size: 0.9rem;">
+                            Select an algorithm to see details
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Performance Metrics -->
+                <div class="sidebar-section">
+                    <h3 class="section-title"><i class="fas fa-chart-bar"></i> Performance</h3>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value" id="metric-throughput">0</div>
+                            <div class="metric-label">Throughput</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="metric-avg-wait">0</div>
+                            <div class="metric-label">Avg Wait</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="metric-avg-turnaround">0</div>
+                            <div class="metric-label">Avg Turnaround</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="metric-context-switches">0</div>
+                            <div class="metric-label">Context Switches</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="content-area">
+                <!-- Process Grid -->
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-tasks"></i> Active Processes</h2>
+                    <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+                        <span style="color: var(--success-color);">
+                            <i class="fas fa-circle"></i> Running: <span id="running-count">0</span>
+                        </span>
+                        <span style="color: var(--warning-color);">
+                            <i class="fas fa-circle"></i> Waiting: <span id="waiting-count">0</span>
+                        </span>
+                        <span style="color: #95a5a6;">
+                            <i class="fas fa-circle"></i> Completed: <span id="completed-count">0</span>
+                        </span>
+                    </div>
+                    <div class="process-grid" id="process-grid">
+                        <!-- Process cards will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Resource Utilization -->
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-server"></i> Resource Utilization</h2>
+                    <div class="resource-bars">
+                        <div class="resource-bar-container">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>CPU Usage</span>
+                                <span id="cpu-percent">0%</span>
+                            </div>
+                            <div class="resource-bar">
+                                <div class="resource-fill cpu-fill" id="cpu-bar" style="width: 0%"></div>
+                            </div>
+                            <div style="font-size: 0.85rem; margin-top: 5px;">
+                                Used: <span id="cpu-used">0</span>/<span id="cpu-total">4</span> cores
+                            </div>
+                        </div>
+                        <div class="resource-bar-container">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Memory Usage</span>
+                                <span id="memory-percent">0%</span>
+                            </div>
+                            <div class="resource-bar">
+                                <div class="resource-fill memory-fill" id="memory-bar" style="width: 0%"></div>
+                            </div>
+                            <div style="font-size: 0.85rem; margin-top: 5px;">
+                                Used: <span id="memory-used">0</span>/<span id="memory-total">2048</span> MB
+                            </div>
+                        </div>
+                        <div class="resource-bar-container">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>I/O Usage</span>
+                                <span id="io-percent">0%</span>
+                            </div>
+                            <div class="resource-bar">
+                                <div class="resource-fill io-fill" id="io-bar" style="width: 0%"></div>
+                            </div>
+                            <div style="font-size: 0.85rem; margin-top: 5px;">
+                                Used: <span id="io-used">0</span>/<span id="io-total">4</span> devices
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Charts -->
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-chart-line"></i> System Performance</h2>
+                    <div class="charts-grid">
+                        <div class="chart-container">
+                            <canvas id="cpu-chart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="memory-chart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="throughput-chart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="process-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Process Table -->
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-table"></i> Process Details</h2>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>PID</th>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Priority</th>
+                                    <th>CPU</th>
+                                    <th>Memory</th>
+                                    <th>I/O</th>
+                                    <th>Wait Time</th>
+                                    <th>Burst Time</th>
+                                    <th>Algorithm Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="process-table">
+                                <!-- Table rows will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- System Log -->
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-terminal"></i> System Log</h2>
+                    <div class="log-panel" id="system-log">
+                        <!-- Log entries will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p><strong>Adaptive Resource Allocation in Multiprogramming System</strong></p>
+            <p>CSE 316 Operating Systems Project | Multiple Allocation Algorithms</p>
+            <p style="margin-top: 10px; opacity: 0.9; font-size: 0.9rem;">
+                <i class="fas fa-graduation-cap"></i> Lovely Professional University
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // ============================================
+        // ENHANCED SIMULATION ENGINE WITH MULTIPLE ALGORITHMS
+        // ============================================
+
+        // Global State
+        const state = {
+            simulationTime: 0,
+            isRunning: false,
+            intervalId: null,
+            processes: [],
+            resources: {
+                cpu: 4,
+                memory: 2048,
+                io: 4,
+                allocatedCPU: 0,
+                allocatedMemory: 0,
+                allocatedIO: 0
+            },
+            metrics: {
+                completedProcesses: 0,
+                totalWaitTime: 0,
+                totalTurnaroundTime: 0,
+                contextSwitches: 0,
+                throughputHistory: []
+            },
+            history: {
+                cpu: [],
+                memory: [],
+                io: [],
+                throughput: []
+            },
+            charts: {},
+            maxHistoryPoints: 20,
+            nextPID: 1
+        };
+
+        // Process Types
+        const processTypes = [
+            { name: "CPU Intensive", icon: "fa-microchip", color: "#3498db", cpu: 0.8, mem: 0.4, io: 0.2 },
+            { name: "Memory Intensive", icon: "fa-memory", color: "#27ae60", cpu: 0.4, mem: 0.8, io: 0.3 },
+            { name: "I/O Intensive", icon: "fa-hdd", color: "#f39c12", cpu: 0.3, mem: 0.4, io: 0.8 },
+            { name: "Balanced", icon: "fa-balance-scale", color: "#9b59b6", cpu: 0.5, mem: 0.5, io: 0.5 }
+        ];
+
+        // DOM Elements
+        const elements = {
+            // Header
+            totalProcesses: document.getElementById('total-processes'),
+            cpuUtil: document.getElementById('cpu-util'),
+            throughput: document.getElementById('throughput'),
+            simulationTime: document.getElementById('simulation-time'),
+            
+            // Sidebar controls
+            processCount: document.getElementById('process-count'),
+            cpuCount: document.getElementById('cpu-count'),
+            memorySize: document.getElementById('memory-size'),
+            ioDevices: document.getElementById('io-devices'),
+            algorithm: document.getElementById('algorithm'),
+            speed: document.getElementById('speed'),
+            
+            // Range values
+            processValue: document.getElementById('process-value'),
+            cpuValue: document.getElementById('cpu-value'),
+            memoryValue: document.getElementById('memory-value'),
+            ioValue: document.getElementById('io-value'),
+            
+            // Buttons
+            startBtn: document.getElementById('start-btn'),
+            pauseBtn: document.getElementById('pause-btn'),
+            resetBtn: document.getElementById('reset-btn'),
+            addProcessBtn: document.getElementById('add-process-btn'),
+            
+            // Algorithm Info
+            currentAlgorithmInfo: document.getElementById('current-algorithm-info'),
+            
+            // Process status
+            runningCount: document.getElementById('running-count'),
+            waitingCount: document.getElementById('waiting-count'),
+            completedCount: document.getElementById('completed-count'),
+            
+            // Resource bars
+            cpuPercent: document.getElementById('cpu-percent'),
+            memoryPercent: document.getElementById('memory-percent'),
+            ioPercent: document.getElementById('io-percent'),
+            cpuBar: document.getElementById('cpu-bar'),
+            memoryBar: document.getElementById('memory-bar'),
+            ioBar: document.getElementById('io-bar'),
+            cpuUsed: document.getElementById('cpu-used'),
+            cpuTotal: document.getElementById('cpu-total'),
+            memoryUsed: document.getElementById('memory-used'),
+            memoryTotal: document.getElementById('memory-total'),
+            ioUsed: document.getElementById('io-used'),
+            ioTotal: document.getElementById('io-total'),
+            
+            // Metrics
+            metricThroughput: document.getElementById('metric-throughput'),
+            metricAvgWait: document.getElementById('metric-avg-wait'),
+            metricAvgTurnaround: document.getElementById('metric-avg-turnaround'),
+            metricContextSwitches: document.getElementById('metric-context-switches'),
+            
+            // Process display
+            processGrid: document.getElementById('process-grid'),
+            processTable: document.getElementById('process-table'),
+            
+            // System log
+            systemLog: document.getElementById('system-log')
+        };
+
+        // Algorithm Information
+        const algorithmInfo = {
+            adaptive: {
+                name: "Adaptive (Smart)",
+                description: "Combines priority, wait time, and resource efficiency for optimal allocation",
+                color: "#9b59b6",
+                badgeClass: "badge-adaptive",
+                icon: "fa-brain"
+            },
+            sjf: {
+                name: "SJF (Shortest Job First)",
+                description: "Prioritizes processes with shortest burst time first",
+                color: "#e67e22",
+                badgeClass: "badge-sjf",
+                icon: "fa-clock"
+            },
+            priority: {
+                name: "Priority Based",
+                description: "Higher priority processes get resources first",
+                color: "#3498db",
+                badgeClass: "badge-priority",
+                icon: "fa-flag"
+            },
+            fcfs: {
+                name: "First Come First Serve",
+                description: "Processes are served in order of arrival",
+                color: "#f39c12",
+                badgeClass: "badge-fcfs",
+                icon: "fa-list-ol"
+            },
+            rr: {
+                name: "Round Robin",
+                description: "Each process gets equal time slices",
+                color: "#27ae60",
+                badgeClass: "badge-rr",
+                icon: "fa-sync"
+            }
+        };
+
+        // Initialize Charts
+        function initCharts() {
+            // CPU Chart
+            const cpuCtx = document.getElementById('cpu-chart').getContext('2d');
+            state.charts.cpu = new Chart(cpuCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'CPU Usage %',
+                        data: [],
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // Memory Chart
+            const memoryCtx = document.getElementById('memory-chart').getContext('2d');
+            state.charts.memory = new Chart(memoryCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Memory Usage %',
+                        data: [],
+                        borderColor: '#27ae60',
+                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // Throughput Chart
+            const throughputCtx = document.getElementById('throughput-chart').getContext('2d');
+            state.charts.throughput = new Chart(throughputCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Throughput (processes/sec)',
+                        data: [],
+                        borderColor: '#9b59b6',
+                        backgroundColor: 'rgba(155, 89, 182, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Process Chart
+            const processCtx = document.getElementById('process-chart').getContext('2d');
+            state.charts.process = new Chart(processCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Running', 'Waiting', 'Completed'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: [
+                            '#27ae60',
+                            '#f39c12',
+                            '#95a5a6'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        // Create a Process
+        function createProcess() {
+            const type = processTypes[Math.floor(Math.random() * processTypes.length)];
+            const names = [
+                "System Process", "User Application", "Database Query", "File Handler",
+                "Network Service", "Security Scan", "Backup Task", "Update Service"
+            ];
+            const name = names[Math.floor(Math.random() * names.length)];
+            
+            // Calculate resource needs based on process type
+            const cpuNeed = Math.max(1, Math.floor(Math.random() * state.resources.cpu * type.cpu) + 1);
+            const memoryNeed = Math.max(128, Math.floor(Math.random() * state.resources.memory * type.mem * 0.1) + 128);
+            const ioNeed = Math.max(1, Math.floor(Math.random() * state.resources.io * type.io) + 1);
+            
+            return {
+                id: state.nextPID++,
+                name: `${name} ${state.nextPID-1}`,
+                type: type.name,
+                icon: type.icon,
+                color: type.color,
+                priority: Math.floor(Math.random() * 10) + 1,
+                cpuNeed: Math.min(cpuNeed, state.resources.cpu),
+                memoryNeed: Math.min(memoryNeed, state.resources.memory),
+                ioNeed: Math.min(ioNeed, state.resources.io),
+                cpuAllocated: 0,
+                memoryAllocated: 0,
+                ioAllocated: 0,
+                burstTime: Math.floor(Math.random() * 12) + 3, // 3-15 seconds
+                remainingTime: 0,
+                status: 'waiting',
+                waitTime: 0,
+                arrivalTime: state.simulationTime,
+                completionTime: null,
+                algorithmScore: 0,
+                turnaroundTime: 0
+            };
+        }
+
+        // Update Algorithm Info Display
+        function updateAlgorithmInfo() {
+            const algo = elements.algorithm.value;
+            const info = algorithmInfo[algo];
+            
+            elements.currentAlgorithmInfo.innerHTML = `
+                <strong>${info.name}</strong><br>
+                ${info.description}
+            `;
+        }
+
+        // Calculate Algorithm Score
+        function calculateAlgorithmScore(process, algorithm) {
+            switch(algorithm) {
+                case 'adaptive':
+                    // Adaptive: Combines priority, wait time, and resource efficiency
+                    const priorityScore = process.priority * 10;
+                    const waitScore = Math.min(process.waitTime * 5, 100);
+                    const efficiencyScore = 100 / (process.cpuNeed + process.memoryNeed/1000 + process.ioNeed);
+                    return priorityScore + waitScore + efficiencyScore;
+                    
+                case 'sjf':
+                    // SJF: Lower burst time = higher priority
+                    return 100 / process.burstTime;
+                    
+                case 'priority':
+                    // Priority: Higher priority = higher score
+                    return process.priority * 10;
+                    
+                case 'fcfs':
+                    // FCFS: Earlier arrival = higher score
+                    return 100 / (process.arrivalTime + 1);
+                    
+                case 'rr':
+                    // Round Robin: Based on arrival time
+                    return 100 - process.waitTime;
+                    
+                default:
+                    return process.priority * 10;
+            }
+        }
+
+        // Initialize Simulation
+        function initSimulation() {
+            stopSimulation();
+            
+            // Reset state
+            state.simulationTime = 0;
+            state.processes = [];
+            state.nextPID = 1;
+            
+            // Update resources from inputs
+            state.resources = {
+                cpu: parseInt(elements.cpuCount.value),
+                memory: parseInt(elements.memorySize.value),
+                io: parseInt(elements.ioDevices.value),
+                allocatedCPU: 0,
+                allocatedMemory: 0,
+                allocatedIO: 0
+            };
+            
+            // Reset metrics
+            state.metrics = {
+                completedProcesses: 0,
+                totalWaitTime: 0,
+                totalTurnaroundTime: 0,
+                contextSwitches: 0,
+                throughputHistory: []
+            };
+            
+            // Reset history
+            state.history = {
+                cpu: [],
+                memory: [],
+                io: [],
+                throughput: []
+            };
+            
+            // Create initial processes
+            const processCount = parseInt(elements.processCount.value);
+            for (let i = 0; i < processCount; i++) {
+                const process = createProcess();
+                process.remainingTime = process.burstTime;
+                state.processes.push(process);
+            }
+            
+            // Update algorithm info
+            updateAlgorithmInfo();
+            
+            // Update UI
+            updateUI();
+            addLog('System initialized with ' + processCount + ' processes');
+            addLog('Algorithm: ' + algorithmInfo[elements.algorithm.value].name);
+        }
+
+        // Start Simulation
+        function startSimulation() {
+            if (state.isRunning) return;
+            
+            state.isRunning = true;
+            elements.startBtn.disabled = true;
+            elements.pauseBtn.disabled = false;
+            
+            const speed = parseInt(elements.speed.value);
+            state.intervalId = setInterval(simulationStep, speed);
+            
+            addLog('Simulation started');
+        }
+
+        // Pause Simulation
+        function pauseSimulation() {
+            if (!state.isRunning) return;
+            
+            state.isRunning = false;
+            clearInterval(state.intervalId);
+            elements.startBtn.disabled = false;
+            elements.pauseBtn.disabled = true;
+            
+            addLog('Simulation paused');
+        }
+
+        // Stop Simulation
+        function stopSimulation() {
+            state.isRunning = false;
+            if (state.intervalId) {
+                clearInterval(state.intervalId);
+            }
+            elements.startBtn.disabled = false;
+            elements.pauseBtn.disabled = true;
+        }
+
+        // Main Simulation Step
+        function simulationStep() {
+            state.simulationTime++;
+            
+            // Update waiting times
+            updateWaitingTimes();
+            
+            // Execute running processes
+            executeProcesses();
+            
+            // Allocate resources based on selected algorithm
+            allocateResources();
+            
+            // Update metrics
+            updateMetrics();
+            
+            // Update UI
+            updateUI();
+            updateCharts();
+            
+            // Check completion
+            if (state.processes.every(p => p.status === 'completed')) {
+                pauseSimulation();
+                addLog('All processes completed!');
+                addLog('Final throughput: ' + calculateThroughput() + ' processes/second');
+            }
+        }
+
+        // Update waiting times
+        function updateWaitingTimes() {
+            state.processes.forEach(process => {
+                if (process.status === 'waiting') {
+                    process.waitTime++;
+                    state.metrics.totalWaitTime++;
+                }
+            });
+        }
+
+        // Execute processes
+        function executeProcesses() {
+            state.processes.forEach(process => {
+                if (process.status === 'running') {
+                    process.remainingTime--;
+                    
+                    if (process.remainingTime <= 0) {
+                        process.status = 'completed';
+                        process.completionTime = state.simulationTime;
+                        process.turnaroundTime = state.simulationTime - process.arrivalTime;
+                        state.metrics.completedProcesses++;
+                        state.metrics.totalTurnaroundTime += process.turnaroundTime;
+                        
+                        // Free resources
+                        state.resources.allocatedCPU -= process.cpuAllocated;
+                        state.resources.allocatedMemory -= process.memoryAllocated;
+                        state.resources.allocatedIO -= process.ioAllocated;
+                        
+                        addLog(`Process ${process.id} completed in ${process.turnaroundTime}s`);
+                    }
+                }
+            });
+        }
+
+        // Allocate Resources
+        function allocateResources() {
+            const algorithm = elements.algorithm.value;
+            const waitingProcesses = state.processes.filter(p => p.status === 'waiting');
+            
+            if (waitingProcesses.length === 0) return;
+            
+            // Calculate scores for all waiting processes
+            waitingProcesses.forEach(process => {
+                process.algorithmScore = calculateAlgorithmScore(process, algorithm);
+            });
+            
+            // Sort based on algorithm
+            let processesToAllocate;
+            switch(algorithm) {
+                case 'adaptive':
+                case 'priority':
+                    processesToAllocate = waitingProcesses.sort((a, b) => b.algorithmScore - a.algorithmScore);
+                    break;
+                    
+                case 'sjf':
+                    processesToAllocate = waitingProcesses.sort((a, b) => a.burstTime - b.burstTime);
+                    break;
+                    
+                case 'fcfs':
+                    processesToAllocate = waitingProcesses.sort((a, b) => a.arrivalTime - b.arrivalTime);
+                    break;
+                    
+                case 'rr':
+                    // Round Robin: Simple implementation - allocate to first waiting process
+                    processesToAllocate = waitingProcesses;
+                    break;
+                    
+                default:
+                    processesToAllocate = waitingProcesses;
+            }
+            
+            // Try to allocate to each process in order
+            processesToAllocate.forEach(process => {
+                const cpuAvailable = state.resources.cpu - state.resources.allocatedCPU;
+                const memoryAvailable = state.resources.memory - state.resources.allocatedMemory;
+                const ioAvailable = state.resources.io - state.resources.allocatedIO;
+                
+                if (process.cpuNeed <= cpuAvailable &&
+                    process.memoryNeed <= memoryAvailable &&
+                    process.ioNeed <= ioAvailable) {
+                    
+                    // Allocate resources
+                    process.cpuAllocated = process.cpuNeed;
+                    process.memoryAllocated = process.memoryNeed;
+                    process.ioAllocated = process.ioNeed;
+                    process.status = 'running';
+                    process.remainingTime = process.burstTime;
+                    
+                    state.resources.allocatedCPU += process.cpuNeed;
+                    state.resources.allocatedMemory += process.memoryNeed;
+                    state.resources.allocatedIO += process.ioNeed;
+                    
+                    state.metrics.contextSwitches++;
+                    
+                    addLog(`Allocated to Process ${process.id} using ${algorithm.toUpperCase()} algorithm`);
+                }
+            });
+        }
+
+        // Calculate Throughput
+        function calculateThroughput() {
+            if (state.simulationTime === 0) return 0;
+            return (state.metrics.completedProcesses / state.simulationTime).toFixed(2);
+        }
+
+        // Calculate Average Wait Time
+        function calculateAvgWaitTime() {
+            if (state.processes.length === 0) return 0;
+            return (state.metrics.totalWaitTime / state.processes.length).toFixed(1);
+        }
+
+        // Calculate Average Turnaround Time
+        function calculateAvgTurnaroundTime() {
+            const completed = state.processes.filter(p => p.status === 'completed');
+            if (completed.length === 0) return 0;
+            return (state.metrics.totalTurnaroundTime / completed.length).toFixed(1);
+        }
+
+        // Update Metrics
+        function updateMetrics() {
+            // Update history
+            const cpuUsage = (state.resources.allocatedCPU / state.resources.cpu) * 100;
+            const memoryUsage = (state.resources.allocatedMemory / state.resources.memory) * 100;
+            const ioUsage = (state.resources.allocatedIO / state.resources.io) * 100;
+            const throughput = calculateThroughput();
+            
+            state.history.cpu.push(cpuUsage);
+            state.history.memory.push(memoryUsage);
+            state.history.io.push(ioUsage);
+            state.history.throughput.push(parseFloat(throughput));
+            
+            // Keep history size limited
+            if (state.history.cpu.length > state.maxHistoryPoints) {
+                state.history.cpu.shift();
+                state.history.memory.shift();
+                state.history.io.shift();
+                state.history.throughput.shift();
+            }
+            
+            // Update throughput history
+            state.metrics.throughputHistory.push(parseFloat(throughput));
+            if (state.metrics.throughputHistory.length > 50) {
+                state.metrics.throughputHistory.shift();
+            }
+        }
+
+        // Update Charts
+        function updateCharts() {
+            // Update CPU chart
+            state.charts.cpu.data.labels = Array(state.history.cpu.length).fill('');
+            state.charts.cpu.data.datasets[0].data = state.history.cpu;
+            state.charts.cpu.update();
+            
+            // Update memory chart
+            state.charts.memory.data.labels = Array(state.history.memory.length).fill('');
+            state.charts.memory.data.datasets[0].data = state.history.memory;
+            state.charts.memory.update();
+            
+            // Update throughput chart
+            state.charts.throughput.data.labels = Array(state.history.throughput.length).fill('');
+            state.charts.throughput.data.datasets[0].data = state.history.throughput;
+            state.charts.throughput.update();
+            
+            // Update process chart
+            const running = state.processes.filter(p => p.status === 'running').length;
+            const waiting = state.processes.filter(p => p.status === 'waiting').length;
+            const completed = state.processes.filter(p => p.status === 'completed').length;
+            
+            state.charts.process.data.datasets[0].data = [running, waiting, completed];
+            state.charts.process.update();
+        }
+
+        // Update UI
+        function updateUI() {
+            // Update header stats
+            elements.totalProcesses.textContent = state.processes.length;
+            elements.simulationTime.textContent = state.simulationTime + 's';
+            
+            const cpuUsage = (state.resources.allocatedCPU / state.resources.cpu) * 100;
+            elements.cpuUtil.textContent = cpuUsage.toFixed(1) + '%';
+            
+            const throughput = calculateThroughput();
+            elements.throughput.textContent = throughput;
+            
+            // Update resource bars
+            const memoryUsage = (state.resources.allocatedMemory / state.resources.memory) * 100;
+            const ioUsage = (state.resources.allocatedIO / state.resources.io) * 100;
+            
+            elements.cpuPercent.textContent = cpuUsage.toFixed(1) + '%';
+            elements.memoryPercent.textContent = memoryUsage.toFixed(1) + '%';
+            elements.ioPercent.textContent = ioUsage.toFixed(1) + '%';
+            
+            elements.cpuBar.style.width = cpuUsage + '%';
+            elements.memoryBar.style.width = memoryUsage + '%';
+            elements.ioBar.style.width = ioUsage + '%';
+            
+            // Update resource numbers
+            elements.cpuUsed.textContent = state.resources.allocatedCPU;
+            elements.cpuTotal.textContent = state.resources.cpu;
+            elements.memoryUsed.textContent = state.resources.allocatedMemory;
+            elements.memoryTotal.textContent = state.resources.memory;
+            elements.ioUsed.textContent = state.resources.allocatedIO;
+            elements.ioTotal.textContent = state.resources.io;
+            
+            // Update process status counts
+            const running = state.processes.filter(p => p.status === 'running').length;
+            const waiting = state.processes.filter(p => p.status === 'waiting').length;
+            const completed = state.processes.filter(p => p.status === 'completed').length;
+            
+            elements.runningCount.textContent = running;
+            elements.waitingCount.textContent = waiting;
+            elements.completedCount.textContent = completed;
+            
+            // Update performance metrics
+            elements.metricThroughput.textContent = throughput;
+            elements.metricAvgWait.textContent = calculateAvgWaitTime();
+            elements.metricAvgTurnaround.textContent = calculateAvgTurnaroundTime();
+            elements.metricContextSwitches.textContent = state.metrics.contextSwitches;
+            
+            // Update process grid
+            updateProcessGrid();
+            
+            // Update process table
+            updateProcessTable();
+        }
+
+        // Update Process Grid
+        function updateProcessGrid() {
+            elements.processGrid.innerHTML = '';
+            
+            state.processes.forEach(process => {
+                const card = document.createElement('div');
+                card.className = `process-card ${process.status}`;
+                
+                const progress = process.burstTime > 0 ? 
+                    ((process.burstTime - process.remainingTime) / process.burstTime) * 100 : 0;
+                
+                // Get current algorithm info
+                const currentAlgo = elements.algorithm.value;
+                const algoInfo = algorithmInfo[currentAlgo];
+                const badgeText = currentAlgo.toUpperCase();
+                
+                // Algorithm badge
+                const algorithmBadge = `
+                    <div class="algorithm-badge ${algoInfo.badgeClass}">
+                        <i class="fas ${algoInfo.icon}"></i> ${badgeText}
+                    </div>
+                `;
+                
+                card.innerHTML = `
+                    ${algorithmBadge}
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <i class="fas ${process.icon}" style="color: ${process.color}; font-size: 1.2rem;"></i>
+                        <div>
+                            <div style="font-weight: 600; color: var(--primary-color);">
+                                ${process.name}
+                            </div>
+                            <div style="font-size: 0.85rem; color: #666;">
+                                PID: ${process.id} | Type: ${process.type}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0;">
+                        <div style="text-align: center; padding: 6px; background: white; border-radius: 6px;">
+                            <div style="font-size: 0.8rem; color: #666;">CPU</div>
+                            <div style="font-weight: 600;">${process.cpuAllocated}/${process.cpuNeed}</div>
+                        </div>
+                        <div style="text-align: center; padding: 6px; background: white; border-radius: 6px;">
+                            <div style="font-size: 0.8rem; color: #666;">Memory</div>
+                            <div style="font-weight: 600;">${process.memoryAllocated}MB</div>
+                        </div>
+                        <div style="text-align: center; padding: 6px; background: white; border-radius: 6px;">
+                            <div style="font-size: 0.8rem; color: #666;">I/O</div>
+                            <div style="font-weight: 600;">${process.ioAllocated}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 10px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
+                            <span>Progress</span>
+                            <span>${process.remainingTime}s remaining</span>
+                        </div>
+                        <div style="height: 6px; background: #e0e0e0; border-radius: 3px; overflow: hidden;">
+                            <div style="width: ${progress}%; height: 100%; background: ${process.color};"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 10px; padding: 6px; background: white; border-radius: 6px; font-size: 0.85rem;">
+                        <div>Priority: ${process.priority} | Burst: ${process.burstTime}s</div>
+                        <div>Status: 
+                            <span style="color: ${process.status === 'running' ? 'var(--success-color)' : 
+                                           process.status === 'waiting' ? 'var(--warning-color)' : '#95a5a6'};">
+                                ${process.status.toUpperCase()}
+                            </span>
+                        </div>
+                    </div>
+                `;
+                
+                elements.processGrid.appendChild(card);
+            });
+        }
+
+        // Update Process Table
+        function updateProcessTable() {
+            elements.processTable.innerHTML = '';
+            
+            state.processes.forEach(process => {
+                const row = document.createElement('tr');
+                
+                const statusColor = process.status === 'running' ? 'var(--success-color)' :
+                                   process.status === 'waiting' ? 'var(--warning-color)' : '#95a5a6';
+                
+                row.innerHTML = `
+                    <td>${process.id}</td>
+                    <td>${process.name}</td>
+                    <td>${process.type}</td>
+                    <td>
+                        <span style="color: ${statusColor}; font-weight: 600;">
+                            ${process.status.toUpperCase()}
+                        </span>
+                    </td>
+                    <td>${process.priority}</td>
+                    <td>${process.cpuAllocated}/${process.cpuNeed}</td>
+                    <td>${process.memoryAllocated}MB</td>
+                    <td>${process.ioAllocated}/${process.ioNeed}</td>
+                    <td>${process.waitTime}s</td>
+                    <td>${process.burstTime}s</td>
+                    <td>${process.algorithmScore.toFixed(1)}</td>
+                `;
+                
+                elements.processTable.appendChild(row);
+            });
+        }
+
+        // Add Log Entry
+        function addLog(message) {
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry`;
+            
+            const timeStr = state.simulationTime.toString().padStart(3, '0');
+            
+            logEntry.innerHTML = `
+                <span style="color: #666; font-family: monospace;">[${timeStr}s]</span>
+                <i class="fas fa-info-circle" style="color: var(--secondary-color); margin: 0 8px;"></i>
+                ${message}
+            `;
+            
+            elements.systemLog.appendChild(logEntry);
+            elements.systemLog.scrollTop = elements.systemLog.scrollHeight;
+            
+            // Keep log size manageable
+            if (elements.systemLog.children.length > 30) {
+                elements.systemLog.removeChild(elements.systemLog.firstChild);
+            }
+        }
+
+        // Add New Process
+        function addNewProcess() {
+            if (state.processes.length >= 20) {
+                addLog('Maximum process limit reached (20)');
+                return;
+            }
+            
+            const process = createProcess();
+            process.remainingTime = process.burstTime;
+            state.processes.push(process);
+            
+            addLog(`Added new process: ${process.name}`);
+            updateUI();
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Control buttons
+            elements.startBtn.addEventListener('click', startSimulation);
+            elements.pauseBtn.addEventListener('click', pauseSimulation);
+            elements.resetBtn.addEventListener('click', initSimulation);
+            elements.addProcessBtn.addEventListener('click', addNewProcess);
+            
+            // Range inputs
+            elements.processCount.addEventListener('input', function() {
+                elements.processValue.textContent = this.value;
+                if (!state.isRunning) {
+                    initSimulation();
+                }
+            });
+            
+            elements.cpuCount.addEventListener('input', function() {
+                elements.cpuValue.textContent = this.value;
+                elements.cpuTotal.textContent = this.value;
+                if (!state.isRunning) {
+                    initSimulation();
+                }
+            });
+            
+            elements.memorySize.addEventListener('input', function() {
+                elements.memoryValue.textContent = this.value;
+                elements.memoryTotal.textContent = this.value;
+                if (!state.isRunning) {
+                    initSimulation();
+                }
+            });
+            
+            elements.ioDevices.addEventListener('input', function() {
+                elements.ioValue.textContent = this.value;
+                elements.ioTotal.textContent = this.value;
+                if (!state.isRunning) {
+                    initSimulation();
+                }
+            });
+            
+            // Algorithm change
+            elements.algorithm.addEventListener('change', function() {
+                const algo = this.value;
+                const info = algorithmInfo[algo];
+                updateAlgorithmInfo();
+                addLog(`Algorithm changed to: ${info.name}`);
+            });
+            
+            // Initialize
+            initSimulation();
+        }
+
+        // Initialize Application
+        window.addEventListener('load', function() {
+            initCharts();
+            setupEventListeners();
+            
+            // Initial messages
+            addLog('=========================================');
+            addLog('Adaptive Resource Allocation System');
+            addLog('Click Start to begin simulation');
+            addLog('=========================================');
+            
+            // Disable pause button initially
+            elements.pauseBtn.disabled = true;
+        });
+    </script>
+</body>
+</html>
